@@ -34,6 +34,8 @@ jobs:
       - name: Build
         run: cmake --build build -j2
       - name: Test
+        env:
+          UBSAN_OPTIONS: halt_on_error=1:abort_on_error=1
         run: cd build && ctest --output-on-failure
 
   tsan:
