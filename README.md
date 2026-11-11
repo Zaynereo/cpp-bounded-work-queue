@@ -20,6 +20,8 @@ cmake -S . -B build-asan -DCMAKE_CXX_COMPILER=g++-12 -DBOUNDED_QUEUE_ENABLE_SANI
 cmake -S . -B build-tsan -DCMAKE_CXX_COMPILER=g++-12 -DBOUNDED_QUEUE_ENABLE_TSAN=ON
 ```
 
+The ASan/UBSan build passes **`-fno-sanitize-recover=undefined`** (link + compile). UBSan defects abort the process so **CTest fails** instead of only logging and continuing. The **sanitizers** CI job also sets `UBSAN_OPTIONS=halt_on_error=1:abort_on_error=1`. ASan/TSan jobs are unchanged.
+
 ## Architecture
 
 | Component | Role |
@@ -81,7 +83,7 @@ Coverage (deterministic sync: `latch` / `barrier` / polling with `expect_within`
 
 ## CI
 
-GitHub Actions (`ubuntu-22.04`): **build+test**, **ASan+UBSan**, **TSan** (separate job, GCC), **Docker build**. Warnings are strict (`-Werror` by default). Jobs fail on sanitizer findings — nothing is skipped silently.
+GitHub Actions (`ubuntu-22.04`): **build+test**, **ASan+UBSan**, **TSan** (separate job, GCC), **Docker build**. Warnings are strict (`-Werror` by default). Sanitizer jobs are configured so reported defects fail the run (UBSan halt/recover disabled as above); nothing is skipped silently.
 
 ## AI assistance disclosure
 

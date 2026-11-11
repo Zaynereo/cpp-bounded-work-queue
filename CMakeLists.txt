@@ -31,8 +31,13 @@ if(BOUNDED_QUEUE_ENABLE_TSAN)
   add_compile_options(-fsanitize=thread -g -O1)
   add_link_options(-fsanitize=thread)
 elseif(BOUNDED_QUEUE_ENABLE_SANITIZERS)
-  add_compile_options(-fsanitize=address,undefined -g -O1 -fno-omit-frame-pointer)
-  add_link_options(-fsanitize=address,undefined)
+  add_compile_options(
+    -fsanitize=address,undefined
+    -fno-sanitize-recover=undefined
+    -g -O1 -fno-omit-frame-pointer)
+  add_link_options(
+    -fsanitize=address,undefined
+    -fno-sanitize-recover=undefined)
 endif()
 
 add_library(bounded_queue INTERFACE)
