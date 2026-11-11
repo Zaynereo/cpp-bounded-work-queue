@@ -1,0 +1,11 @@
+add_executable(test_bounded_queue test_bounded_queue.cpp)
+target_link_libraries(test_bounded_queue PRIVATE bounded_queue)
+bounded_queue_apply_warnings(test_bounded_queue)
+add_test(NAME bounded_queue COMMAND test_bounded_queue)
+
+add_executable(test_worker_pool test_worker_pool.cpp)
+target_link_libraries(test_worker_pool PRIVATE bounded_queue)
+bounded_queue_apply_warnings(test_worker_pool)
+add_test(NAME worker_pool COMMAND test_worker_pool)
+
+set_tests_properties(bounded_queue worker_pool PROPERTIES TIMEOUT 60)
