@@ -1,0 +1,57 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install toolchain
+        run: sudo apt-get update && sudo apt-get install -y g++-12 cmake
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_CXX_COMPILER=g++-12
+      - name: Build
+        run: cmake --build build -j2
+      - name: Test
+        run: cd build && ctest --output-on-failure
+
+  sanitizers:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install toolchain
+        run: sudo apt-get update && sudo apt-get install -y g++-12 cmake
+      - name: Configure ASan/UBSan
+        run: cmake -S . -B build -DCMAKE_CXX_COMPILER=g++-12 -DBOUNDED_QUEUE_ENABLE_SANITIZERS=ON
+      - name: Build
+        run: cmake --build build -j2
+      - name: Test
+        run: cd build && ctest --output-on-failure
+
+  tsan:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install toolchain
+        run: sudo apt-get update && sudo apt-get install -y g++-12 cmake
+      - name: Configure TSan (GCC libtsan on Linux x86_64)
+        run: cmake -S . -B build -DCMAKE_CXX_COMPILER=g++-12 -DBOUNDED_QUEUE_ENABLE_TSAN=ON
+      - name: Build
+        run: cmake --build build -j2
+      - name: Test
+        run: cd build && ctest --output-on-failure
+
+  docker:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Docker build
+        run: docker build -t cpp-bounded-work-queue:ci .
